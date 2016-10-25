@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html.App as App
-import Html exposing (Html, div, text)
+import Html exposing (Html, div, text, span)
 
 
 main =
@@ -61,4 +61,9 @@ view model =
 
 viewCell : Maybe Marker -> Html Msg
 viewCell marker =
-    div [] [ text (toString marker) ]
+    let
+        label =
+            Maybe.map toString marker
+                |> Maybe.withDefault "-"
+    in
+        span [] [ text label ]
