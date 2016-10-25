@@ -17,6 +17,11 @@ type alias Model =
     Int
 
 
+type Marker
+    = X
+    | O
+
+
 init : ( Model, Cmd Msg )
 init =
     ( 0, Cmd.none )
@@ -35,4 +40,25 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [] [ text "Hello, world!" ]
+    div []
+        [ div []
+            [ viewCell (Just X)
+            , viewCell (Nothing)
+            , viewCell (Nothing)
+            ]
+        , div []
+            [ viewCell (Just X)
+            , viewCell (Nothing)
+            , viewCell (Nothing)
+            ]
+        , div []
+            [ viewCell (Just X)
+            , viewCell (Nothing)
+            , viewCell (Nothing)
+            ]
+        ]
+
+
+viewCell : Maybe Marker -> Html Msg
+viewCell marker =
+    div [] [ text (toString marker) ]
