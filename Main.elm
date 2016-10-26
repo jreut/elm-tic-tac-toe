@@ -1,7 +1,9 @@
 module Main exposing (..)
 
+import Array exposing (Array)
 import Html.App as App
-import Html exposing (Html, div, text, span)
+import Html exposing (Html, div, text, button)
+import Html.Events exposing (onClick)
 
 
 main =
@@ -14,6 +16,10 @@ main =
 
 
 type alias Model =
+    Array (Maybe Marker)
+
+
+type alias Index =
     Int
 
 
@@ -24,11 +30,12 @@ type Marker
 
 init : ( Model, Cmd Msg )
 init =
-    ( 0, Cmd.none )
+    ( Array.repeat 9 Nothing, Cmd.none )
 
 
 type Msg
     = Noop
+    | Move Index
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -37,33 +44,25 @@ update msg model =
         Noop ->
             ( model, Cmd.none )
 
+        Move index ->
+            ( Array.set index (Just X) model, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div []
-            [ viewCell (Just X)
-            , viewCell (Nothing)
-            , viewCell (Nothing)
-            ]
-        , div []
-            [ viewCell (Just X)
-            , viewCell (Nothing)
-            , viewCell (Nothing)
-            ]
-        , div []
-            [ viewCell (Just X)
-            , viewCell (Nothing)
-            , viewCell (Nothing)
-            ]
-        ]
+    let
+        cellWithIndex =
+            Array.indexedMap (\index -> viewCell index)
+    in
+        div []
+            (model |> cellWithIndex |> Array.toList)
 
 
-viewCell : Maybe Marker -> Html Msg
-viewCell marker =
+viewCell : Index -> Maybe Marker -> Html Msg
+viewCell index marker =
     let
         label =
             Maybe.map toString marker
                 |> Maybe.withDefault "-"
     in
-        span [] [ text label ]
+        button [ onClick (Move index) ] [ text label ]
