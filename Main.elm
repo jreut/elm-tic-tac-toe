@@ -16,7 +16,9 @@ main =
 
 
 type alias Model =
-    Array (Maybe Marker)
+    { board : Array (Maybe Marker)
+    , currentPlayer : Marker
+    }
 
 
 type alias Index =
@@ -30,7 +32,7 @@ type Marker
 
 init : ( Model, Cmd Msg )
 init =
-    ( Array.repeat 9 Nothing, Cmd.none )
+    ( Model (Array.repeat 9 Nothing) X, Cmd.none )
 
 
 type Msg
@@ -45,7 +47,25 @@ update msg model =
             ( model, Cmd.none )
 
         Move index ->
-            ( Array.set index (Just X) model, Cmd.none )
+            ( makeMove model index, Cmd.none )
+
+
+makeMove : Model -> Index -> Model
+makeMove model index =
+    { model
+        | currentPlayer = switchPlayer model.currentPlayer
+        , board = Array.set index (Just model.currentPlayer) model.board
+    }
+
+
+switchPlayer : Marker -> Marker
+switchPlayer marker =
+    case marker of
+        X ->
+            O
+
+        O ->
+            X
 
 
 view : Model -> Html Msg
@@ -55,7 +75,7 @@ view model =
             Array.indexedMap (\index -> viewCell index)
     in
         div []
-            (model |> cellWithIndex |> Array.toList)
+            (model.board |> cellWithIndex |> Array.toList)
 
 
 viewCell : Index -> Maybe Marker -> Html Msg
