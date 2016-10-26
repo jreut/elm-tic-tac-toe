@@ -71,11 +71,31 @@ switchPlayer marker =
 view : Model -> Html Msg
 view model =
     let
-        cellWithIndex =
-            Array.indexedMap (\index -> viewCell index)
+        boardSize =
+            model.board
+                |> Array.length
+                |> toFloat
+                |> sqrt
+                |> round
+
+        rows =
+            eachSlice boardSize model.board
+
+        startingIndices =
+            Array.initialize boardSize ((*) boardSize) |> Array.toList
+
+        zipped =
+            \renderer -> List.map2 renderer startingIndices rows
     in
-        div []
-            (model.board |> cellWithIndex |> Array.toList)
+        div [] (zipped viewRow)
+
+
+viewRow : Index -> Array (Maybe Marker) -> Html Msg
+viewRow startingIndex array =
+    array
+        |> Array.indexedMap (\index -> viewCell (index + startingIndex))
+        |> Array.toList
+        |> div []
 
 
 viewCell : Index -> Maybe Marker -> Html Msg
@@ -86,3 +106,20 @@ viewCell index marker =
                 |> Maybe.withDefault "-"
     in
         button [ onClick (Move index) ] [ text label ]
+
+
+eachSlice : Int -> Array a -> List (Array a)
+eachSlice size array =
+    let
+        chunks =
+            (Array.length array) // size + 1
+
+        indices =
+            Array.initialize chunks (\index -> index * size)
+
+        slicer =
+            \index -> Array.slice index (index + size) array
+    in
+        indices
+            |> Array.map slicer
+            |> Array.toList
