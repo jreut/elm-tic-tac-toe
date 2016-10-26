@@ -37,16 +37,12 @@ init =
 
 
 type Msg
-    = Noop
-    | Move Index
+    = Move Index
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Noop ->
-            ( model, Cmd.none )
-
         Move index ->
             ( makeMove model index, Cmd.none )
 
