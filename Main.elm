@@ -6,6 +6,7 @@ import Html exposing (Html, div, text, button)
 import Html.Events exposing (onClick)
 
 
+main : Program Never
 main =
     App.program
         { init = init
