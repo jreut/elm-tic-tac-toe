@@ -18,7 +18,7 @@ main =
 
 
 type alias Model =
-    { board : Array (Maybe Marker)
+    { board : Board
     , currentPlayer : Marker
     }
 
@@ -118,7 +118,7 @@ viewBoard model =
         div [] (zipped viewRow)
 
 
-viewRow : Index -> Array (Maybe Marker) -> Html Msg
+viewRow : Index -> Board -> Html Msg
 viewRow startingIndex array =
     array
         |> Array.indexedMap (\index -> viewCell (index + startingIndex))
