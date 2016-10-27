@@ -42,6 +42,7 @@ init =
 
 type Msg
     = Move Index
+    | Reset
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -49,6 +50,9 @@ update msg model =
     case msg of
         Move index ->
             ( makeMove model index, Cmd.none )
+
+        Reset ->
+            init
 
 
 makeMove : Model -> Index -> Model
@@ -86,6 +90,16 @@ switchPlayer marker =
 
 view : Model -> Html Msg
 view model =
+    div [] [ viewBoard model, viewControls ]
+
+
+viewControls : Html Msg
+viewControls =
+    button [ onClick Reset ] [ text "reset" ]
+
+
+viewBoard : Model -> Html Msg
+viewBoard model =
     let
         boardSize =
             model.board
