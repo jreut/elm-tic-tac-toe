@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Array exposing (Array)
+import Maybe exposing (andThen)
 import Html.App as App
 import Html exposing (Html, div, text, button)
 import Html.Events exposing (onClick)
@@ -37,7 +38,11 @@ type Marker
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model (Array.repeat 9 Nothing) X, Cmd.none )
+    ( Model (Array.repeat (boardSize * boardSize) Nothing) X, Cmd.none )
+
+
+boardSize =
+    3
 
 
 type Msg
@@ -101,13 +106,6 @@ viewControls =
 viewBoard : Model -> Html Msg
 viewBoard model =
     let
-        boardSize =
-            model.board
-                |> Array.length
-                |> toFloat
-                |> sqrt
-                |> round
-
         rows =
             eachSlice boardSize model.board
 
