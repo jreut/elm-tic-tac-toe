@@ -11,6 +11,7 @@ module Board
         )
 
 import Array exposing (Array)
+import List exposing (take, drop)
 
 
 type alias Model a =
@@ -31,23 +32,29 @@ type alias BoardRenderer contained container =
 
 init : Int -> Model a
 init size =
-    Array.repeat (size * size) Nothing |> Array.toList
+    List.repeat (size * size) Nothing
 
 
 update : Model a -> Int -> a -> Model a
 update model index occupant =
-    Array.fromList model
-        |> Array.set index (Just occupant)
-        |> Array.toList
+    let
+        replacer =
+            (\i original ->
+                if index == i then
+                    Just occupant
+                else
+                    original
+            )
+    in
+        List.indexedMap replacer model
 
 
 isOccupied : Model a -> Int -> Bool
 isOccupied model index =
-    model
-        |> Array.fromList
-        |> Array.get index
-        |> Maybe.withDefault Nothing
-        |> (==) Nothing
+    List.drop index model
+        |> List.head
+        |> Maybe.map ((==) Nothing)
+        |> Maybe.withDefault False
 
 
 view : CellRenderer a -> RowRenderer a b -> BoardRenderer b c -> Model d -> c
@@ -57,15 +64,34 @@ view cellRenderer rowRenderer boardRenderer model =
             Array.fromList model
 
         boardSize =
-            (modelArray |> Array.length |> toFloat |> sqrt |> round)
+            (model |> List.length |> toFloat |> sqrt |> round)
 
         indices =
-            Array.initialize boardSize ((*) boardSize) |> Array.toList
+            List.repeat boardSize boardSize
+                |> List.indexedMap (*)
     in
         boardRenderer
             (eachSlice boardSize modelArray
                 |> List.map2 (viewRow cellRenderer rowRenderer) indices
             )
+
+
+slices : Int -> List a -> List (List a)
+slices size list =
+    -- TODO: broken
+    let
+        wanted =
+            take size list
+
+        rest =
+            drop size list
+    in
+        case ( wanted, rest ) of
+            ( [], _ ) ->
+                [ [] ]
+
+            ( w, r ) ->
+                (slices size r)
 
 
 viewRow : CellRenderer a -> RowRenderer a b -> Int -> Array (Maybe c) -> b
