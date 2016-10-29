@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Board
 import Array exposing (Array)
 import Maybe exposing (andThen)
 import Html.App as App
@@ -24,7 +25,7 @@ type alias Model =
 
 
 type alias Board =
-    Array (Maybe Marker)
+    Board.Model Marker
 
 
 type alias Index =
