@@ -35,11 +35,7 @@ type alias Index =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model (Board.init boardSize) Marker.init, Cmd.none )
-
-
-boardSize =
-    3
+    ( Model (Board.init 3) Marker.init, Cmd.none )
 
 
 type Msg
@@ -80,49 +76,19 @@ viewControls =
 
 viewBoard : Model -> Html Msg
 viewBoard model =
-    let
-        rows =
-            eachSlice boardSize model.board
-
-        startingIndices =
-            Array.initialize boardSize ((*) boardSize) |> Array.toList
-
-        zipped =
-            \renderer -> List.map2 renderer startingIndices rows
-    in
-        div [] (zipped viewRow)
+    Board.view cellRenderer rowRenderer boardRenderer model.board
 
 
-viewRow : Index -> Board -> Html Msg
-viewRow startingIndex array =
-    array
-        |> Array.indexedMap (\index -> viewCell (index + startingIndex))
-        |> Array.toList
-        |> div []
+boardRenderer : Board.BoardRenderer (Html Msg) (Html Msg)
+boardRenderer rows =
+    div [] rows
 
 
-viewCell : Index -> Maybe Marker.Model -> Html Msg
-viewCell index marker =
-    let
-        label =
-            Maybe.map Marker.view marker
-                |> Maybe.withDefault "-"
-    in
-        button [ onClick (Move index) ] [ text label ]
+rowRenderer : Board.RowRenderer (Html Msg) (Html Msg)
+rowRenderer row =
+    div [] row
 
 
-eachSlice : Int -> Array a -> List (Array a)
-eachSlice size array =
-    let
-        chunks =
-            (Array.length array) // size + 1
-
-        indices =
-            Array.initialize chunks (\index -> index * size)
-
-        slicer =
-            \index -> Array.slice index (index + size) array
-    in
-        indices
-            |> Array.map slicer
-            |> Array.toList
+cellRenderer : Board.CellRenderer (Html Msg)
+cellRenderer index contents =
+    button [ onClick (Move index) ] [ text contents ]
