@@ -14,7 +14,7 @@ import Array exposing (Array)
 
 
 type alias Model a =
-    Array (Maybe a)
+    List (Maybe a)
 
 
 type alias CellRenderer a =
@@ -31,17 +31,21 @@ type alias BoardRenderer contained container =
 
 init : Int -> Model a
 init size =
-    Array.repeat (size * size) Nothing
+    Array.repeat (size * size) Nothing |> Array.toList
 
 
 update : Model a -> Int -> a -> Model a
 update model index occupant =
-    Array.set index (Just occupant) model
+    Array.fromList model
+        |> Array.set index (Just occupant)
+        |> Array.toList
 
 
 isOccupied : Model a -> Int -> Bool
 isOccupied model index =
-    Array.get index model
+    model
+        |> Array.fromList
+        |> Array.get index
         |> Maybe.withDefault Nothing
         |> (==) Nothing
 
@@ -49,19 +53,22 @@ isOccupied model index =
 view : CellRenderer a -> RowRenderer a b -> BoardRenderer b c -> Model d -> c
 view cellRenderer rowRenderer boardRenderer model =
     let
+        modelArray =
+            Array.fromList model
+
         boardSize =
-            (model |> Array.length |> toFloat |> sqrt |> round)
+            (modelArray |> Array.length |> toFloat |> sqrt |> round)
 
         indices =
             Array.initialize boardSize ((*) boardSize) |> Array.toList
     in
         boardRenderer
-            (eachSlice boardSize model
+            (eachSlice boardSize modelArray
                 |> List.map2 (viewRow cellRenderer rowRenderer) indices
             )
 
 
-viewRow : CellRenderer a -> RowRenderer a b -> Int -> Model c -> b
+viewRow : CellRenderer a -> RowRenderer a b -> Int -> Array (Maybe c) -> b
 viewRow cellRenderer rowRenderer startingIndex row =
     Array.map (viewCell "-") row
         |> Array.indexedMap (\index cell -> cellRenderer (index + startingIndex) cell)
