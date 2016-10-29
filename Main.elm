@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Board
+import Marker
 import Array exposing (Array)
 import Maybe exposing (andThen)
 import Html.App as App
@@ -20,26 +21,21 @@ main =
 
 type alias Model =
     { board : Board
-    , currentPlayer : Marker
+    , currentPlayer : Marker.Model
     }
 
 
 type alias Board =
-    Board.Model Marker
+    Board.Model Marker.Model
 
 
 type alias Index =
     Int
 
 
-type Marker
-    = X
-    | O
-
-
 init : ( Model, Cmd Msg )
 init =
-    ( Model (Board.init boardSize) X, Cmd.none )
+    ( Model (Board.init boardSize) Marker.init, Cmd.none )
 
 
 boardSize =
@@ -65,21 +61,11 @@ makeMove : Model -> Index -> Model
 makeMove model index =
     if Board.isOccupied model.board index then
         { model
-            | currentPlayer = switchPlayer model.currentPlayer
+            | currentPlayer = Marker.update model.currentPlayer
             , board = Board.set model.board index model.currentPlayer
         }
     else
         model
-
-
-switchPlayer : Marker -> Marker
-switchPlayer marker =
-    case marker of
-        X ->
-            O
-
-        O ->
-            X
 
 
 view : Model -> Html Msg
@@ -115,11 +101,11 @@ viewRow startingIndex array =
         |> div []
 
 
-viewCell : Index -> Maybe Marker -> Html Msg
+viewCell : Index -> Maybe Marker.Model -> Html Msg
 viewCell index marker =
     let
         label =
-            Maybe.map toString marker
+            Maybe.map Marker.view marker
                 |> Maybe.withDefault "-"
     in
         button [ onClick (Move index) ] [ text label ]
