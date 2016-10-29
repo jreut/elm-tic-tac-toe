@@ -5,7 +5,7 @@ module Board
         , RowRenderer
         , BoardRenderer
         , init
-        , set
+        , update
         , view
         , isOccupied
         )
@@ -34,8 +34,8 @@ init size =
     Array.repeat (size * size) Nothing
 
 
-set : Model a -> Int -> a -> Model a
-set model index occupant =
+update : Model a -> Int -> a -> Model a
+update model index occupant =
     Array.set index (Just occupant) model
 
 

@@ -20,17 +20,9 @@ main =
 
 
 type alias Model =
-    { board : Board
+    { board : Board.Model Marker.Model
     , currentPlayer : Marker.Model
     }
-
-
-type alias Board =
-    Board.Model Marker.Model
-
-
-type alias Index =
-    Int
 
 
 init : ( Model, Cmd Msg )
@@ -39,7 +31,7 @@ init =
 
 
 type Msg
-    = Move Index
+    = Move Int
     | Reset
 
 
@@ -53,12 +45,12 @@ update msg model =
             init
 
 
-makeMove : Model -> Index -> Model
+makeMove : Model -> Int -> Model
 makeMove model index =
     if Board.isOccupied model.board index then
         { model
             | currentPlayer = Marker.update model.currentPlayer
-            , board = Board.set model.board index model.currentPlayer
+            , board = Board.update model.board index model.currentPlayer
         }
     else
         model
