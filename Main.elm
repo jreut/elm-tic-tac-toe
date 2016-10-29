@@ -39,7 +39,7 @@ type Marker
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model (Array.repeat (boardSize * boardSize) Nothing) X, Cmd.none )
+    ( Model (Board.init boardSize) X, Cmd.none )
 
 
 boardSize =
@@ -63,25 +63,13 @@ update msg model =
 
 makeMove : Model -> Index -> Model
 makeMove model index =
-    if isOccupied model.board index then
+    if Board.isOccupied model.board index then
         { model
             | currentPlayer = switchPlayer model.currentPlayer
-            , board = placeMarker model.board model.currentPlayer index
+            , board = Board.set model.board index model.currentPlayer
         }
     else
         model
-
-
-placeMarker : Board -> Marker -> Index -> Board
-placeMarker board marker index =
-    Array.set index (Just marker) board
-
-
-isOccupied : Board -> Index -> Bool
-isOccupied board index =
-    Array.get index board
-        |> Maybe.withDefault Nothing
-        |> (==) Nothing
 
 
 switchPlayer : Marker -> Marker
